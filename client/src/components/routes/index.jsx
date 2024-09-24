@@ -1,7 +1,9 @@
 import { useRoutes } from "react-router-dom";
+import React from "react";
 import Home from "../../pages/Home";
 import MainLayout from "../Layout/MainLayout";
-import Portfolio from "../../pages/Portfolio";
+
+const LazyPortfolio = React.lazy(() => import("../../pages/Portfolio"));
 
 const MainRoutes = () => {
   const routes = useRoutes([
@@ -12,7 +14,11 @@ const MainRoutes = () => {
         { path: "/", element: <Home /> },
         {
           path: "/portfolio",
-          element: <Portfolio />,
+          element: (
+            <React.Suspense fallback="Loading...">
+              <LazyPortfolio />
+            </React.Suspense>
+          ),
         },
       ],
     },
