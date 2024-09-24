@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { TrendingUp, Menu } from "lucide-react";
+import { TrendingUp, Menu, LogIn } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -11,6 +11,7 @@ const Header = () => {
     { name: "Portfolio", path: "/portfolio" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
+    { name: "Login", path: "/auth", icon: <LogIn className="h-4 w-4" /> },
   ];
 
   return (
@@ -22,13 +23,14 @@ const Header = () => {
         </span>
       </Link>
 
-      <nav className="hidden md:flex gap-6">
+      <nav className="hidden md:flex gap-6 items-center">
         {navItems.map((item) => (
           <Link
             key={item.name}
-            className="text-sm font-medium text-gray-600 hover:text-primary transition-colors duration-200 hover:underline underline-offset-4"
+            className="text-sm font-medium text-gray-600 hover:text-primary transition-colors duration-200 hover:underline underline-offset-4 flex items-center"
             to={item.path}
           >
+            {item.icon && <span className="mr-1">{item.icon}</span>}
             {item.name}
           </Link>
         ))}
@@ -43,10 +45,11 @@ const Header = () => {
           {navItems.map((item) => (
             <Link
               key={item.name}
-              className="block py-2 px-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200"
+              className=" py-2 px-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 flex items-center"
               to={item.path}
               onClick={() => setIsMenuOpen(false)}
             >
+              {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.name}
             </Link>
           ))}
