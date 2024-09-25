@@ -1,12 +1,17 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useContext } from "react";
+import Store from "../context/Store/Store";
 
 const BuySellForm = () => {
   const [selected, setSelected] = useState("BUY");
+  const { state, addStock } = useContext(Store);
+
   const [formData, setFormData] = useState({
     symbol: "",
     quantity: "",
     price: "",
     sector: "",
+    tax: 0,
+    brokerage: 0,
   });
   const [errors, setErrors] = useState({});
 
@@ -21,7 +26,7 @@ const BuySellForm = () => {
   const calculateCharges = useCallback((quantity, price) => {
     const totalPrice = Number(quantity) * Number(price);
     const STT = (0.1 / 100) * totalPrice;
-    const TransactionCharges = (0.00325 / 100) * totalPrice;
+    const TransactionCharges = (0.00325 / 100) * totalPrice; //NSE
     const SEBICharges = (10 / 10000000) * totalPrice;
     const StampDuty = (0.015 / 100) * totalPrice;
     const totalTax = STT + TransactionCharges + SEBICharges + StampDuty;
@@ -37,6 +42,7 @@ const BuySellForm = () => {
   useMemo(() => {
     if (formData.quantity && formData.price) {
       const charges = calculateCharges(formData.quantity, formData.price);
+      formData.tax = charges.tax;
       setCalculatedCharges(charges);
     }
   }, [formData.quantity, formData.price, calculateCharges]);
@@ -60,7 +66,7 @@ const BuySellForm = () => {
       return;
     }
     setIsSubmitting(true);
-    // Simulate API call
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log(formData);
     setSubmitMessage({
@@ -68,7 +74,15 @@ const BuySellForm = () => {
       text: `${selected} order placed successfully!`,
     });
     setIsSubmitting(false);
-    setFormData({ symbol: "", quantity: "", price: "", sector: "" });
+    addStock(formData);
+    setFormData({
+      symbol: "",
+      quantity: "",
+      price: "",
+      sector: "",
+      tax: 0,
+      brokerage: 0,
+    });
   };
 
   const buttons = ["BUY", "SELL"];
@@ -161,6 +175,7 @@ const BuySellForm = () => {
           <input
             id="price"
             name="price"
+            onWheel={(e) => e.target.blur()}
             type="number"
             value={formData.price}
             onChange={handleInputChange}
@@ -200,6 +215,7 @@ const BuySellForm = () => {
             id="quantity"
             name="quantity"
             type="number"
+            onWheel={(e) => e.target.blur()}
             value={formData.quantity}
             onChange={handleInputChange}
             style={{
@@ -234,31 +250,34 @@ const BuySellForm = () => {
           >
             Select Sector
           </label>
-          <select
-            id="sector"
-            name="sector"
-            value={formData.sector}
-            onChange={handleInputChange}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              border: "2px solid #ccc",
-              borderRadius: "0.25rem",
-            }}
-          >
-            <option value="">Please Select Sector</option>
-            <option value="Technology">Technology</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Finance">Finance</option>
-            <option value="Consumer Goods">Consumer Goods</option>
-            <option value="Energy">Energy</option>
-            <option value="Industrials">Industrials</option>
-            <option value="Materials">Materials</option>
-            <option value="Telecommunications">Telecommunications</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Real Estate">Real Estate</option>
-            <option value="Other">Other</option>
-          </select>
+
+          {selected === "BUY" && (
+            <select
+              id="sector"
+              name="sector"
+              value={formData.sector}
+              onChange={handleInputChange}
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                border: "2px solid #ccc",
+                borderRadius: "0.25rem",
+              }}
+            >
+              <option value="">Please Select Sector</option>
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Finance">Finance</option>
+              <option value="Consumer Goods">Consumer Goods</option>
+              <option value="Energy">Energy</option>
+              <option value="Industrials">Industrials</option>
+              <option value="Materials">Materials</option>
+              <option value="Telecommunications">Telecommunications</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Other">Other</option>
+            </select>
+          )}
           {errors.sector && (
             <p
               style={{
