@@ -4,7 +4,6 @@ const TransactionHistory = () => {
   return (
     <section className="mt-8">
       <div className="overflow-x-auto shadow-md sm:rounded-lg">
-        <h2 className="text-xl font-bold m-4">Transaction History</h2>
         <table className="w-full text-left text-sm text-gray-500 bg-white rounded-lg">
           <thead className="text-xs uppercase bg-gray-50 text-gray-700">
             <tr>

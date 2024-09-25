@@ -1,29 +1,34 @@
-import { lazy } from "react";
-
 import BuySellForm from "../components/BuySellForm";
 import CurrentHoldings from "../components/CurrentHoldings";
 import PortfolioSummary from "../components/PortfolioSummary";
 import TransactionHistory from "../components/TransitionHistory";
 
-const Portfolio = () => {
+export default function Portfolio() {
   return (
-    <div className="m-4 p-4">
-      <section className=" border-gray-400 p-4 rounded-lg shadow-lg">
-        <h1 className="font-bold text-2xl m-2">Your Stock Portfolio</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Your Stock Portfolio</h1>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Portfolio Summary</h2>
         <PortfolioSummary />
-      </section>
-      <section className="mt-8 border-gray-400 p-4 rounded-lg shadow-lg">
-        <h2 className="font-bold text-xl my-4">Buy/Sell Stock</h2>
-        <BuySellForm />
-      </section>
-      <section className="mt-8">
-        <CurrentHoldings />
-      </section>
-      <section className="mt-8">
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-semibold mb-4">Current Holdings</h2>
+          <CurrentHoldings />
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-semibold mb-4">Buy/Sell Stock</h2>
+          <BuySellForm />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mt-8">
+        <h2 className="text-2xl font-semibold mb-4">Transaction History</h2>
         <TransactionHistory />
-      </section>
+      </div>
     </div>
   );
-};
-
-export default Portfolio;
+}
