@@ -17,18 +17,19 @@ const TransactionHistory = () => {
               isPositive ? "text-green-600" : "text-red-600"
             }`}
           >
-            {isPositive ? (
-              <ArrowUpCircle className="inline mr-1" />
-            ) : (
-              <ArrowDownCircle className="inline mr-1" />
-            )}
             {transaction.type}
           </td>
           <td className="px-6 py-4">{transaction.symbol}</td>
           <td className="px-6 py-4">{transaction.quantity}</td>
           <td className="px-6 py-4">₹{transaction.price}</td>
           <td className="px-6 py-4">
-            ₹{(transaction.price * transaction.quantity).toFixed(2)}
+            ₹{Number(transaction.charges).toFixed(2)}
+          </td>
+          <td className="px-6 py-4">
+            ₹
+            {Number(transaction.charges) +
+              Number(transaction.price) *
+                Number(transaction.quantity).toFixed(2)}
           </td>
         </tr>
       );
@@ -65,6 +66,7 @@ const TransactionHistory = () => {
               <th className="px-6 py-3">Symbol</th>
               <th className="px-6 py-3">Quantity</th>
               <th className="px-6 py-3">Price</th>
+              <th className="px-6 py-3">Charges</th>
               <th className="px-6 py-3">Total</th>
             </tr>
           </thead>

@@ -2,24 +2,26 @@ import React, { useState, useCallback, useMemo, useContext } from "react";
 import Store from "../context/Store/Store";
 
 const BuySellForm = () => {
-  const [selected, setSelected] = useState("BUY");
   const { state, storeFunction } = useContext(Store);
+  const stocks = state.stocks;
 
+  const [selected, setSelected] = useState("BUY");
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     symbol: "",
+    sector: "",
     quantity: 0,
     price: 0,
-    sector: "",
     tax: 0,
     brokerage: 0,
   });
-  const [errors, setErrors] = useState({});
 
   const [calculatedCharges, setCalculatedCharges] = useState({
     tax: 0,
     brokerage: 0,
   });
 
+  const [avgPrice, setAvgPrice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
 
@@ -49,13 +51,81 @@ const BuySellForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.symbol.trim()) newErrors.symbol = "Symbol is required";
-    if (!formData.price || Number(formData.price) <= 0)
-      newErrors.price = "Valid price is required";
-    if (!formData.quantity || Number(formData.quantity) <= 0)
-      newErrors.quantity = "Valid quantity is required";
-    if (selected === "BUY" && !formData.sector)
+
+    // Symbol validation
+    if (!formData.symbol.trim()) {
+      newErrors.symbol = "Symbol is required";
+    } else if (formData.symbol.length >= 10) {
+      newErrors.symbol = "Symbol should be 10 characters or less";
+    } else if (!/^[A-Za-z]+$/.test(formData.symbol)) {
+      newErrors.symbol = "Symbol should contain only letters";
+    } else {
+      formData.symbol = formData.symbol.toUpperCase();
+    }
+
+    // Price validation
+    if (!formData.price) {
+      newErrors.price = "Price is required";
+    } else {
+      const price = Number(formData.price);
+      if (isNaN(price) || price <= 0) {
+        newErrors.price = "Price must be a positive number";
+      } else if (price > 1000000) {
+        // Assuming a reasonable upper limit
+        newErrors.price = "Price seems unusually high. Please verify";
+      }
+    }
+
+    // Quantity validation
+    if (!formData.quantity) {
+      newErrors.quantity = "Quantity is required";
+    } else {
+      const quantity = Number(formData.quantity);
+      if (!Number.isInteger(quantity) || quantity <= 0) {
+        newErrors.quantity = "Quantity must be a positive integer";
+      } else if (quantity > 1000000) {
+        // Assuming a reasonable upper limit
+        newErrors.quantity = "Quantity seems unusually high. Please verify";
+      }
+    }
+
+    // Sector validation (only for BUY)
+    if (selected === "BUY" && !formData.sector) {
       newErrors.sector = "Please select a sector";
+    }
+
+    // Additional check for SELL
+    if (selected === "SELL") {
+      // Assuming you have a function to check current holdings
+      const currentHolding = getCurrentHolding(formData.symbol);
+      if (Number(formData.quantity) > currentHolding) {
+        newErrors.quantity = `You can't sell more than your current holding of ${currentHolding}`;
+      }
+    }
+
+    if (stocks.length > 0 && selected === "BUY") {
+      const existingStock = stocks.find(
+        (stock) => stock.symbol === formData.symbol
+      );
+
+      if (existingStock) {
+        const totalOldValue =
+          Number(existingStock.quantity) * Number(existingStock.price);
+        const totalNewValue =
+          Number(formData.quantity) * Number(formData.price);
+        const totalQuantity =
+          Number(existingStock.quantity) + Number(formData.quantity);
+
+        const avgprice = (totalOldValue + totalNewValue) / totalQuantity;
+        setAvgPrice(avgprice.toFixed(2));
+        // Update formData with the new average price
+        setFormData((prevData) => ({
+          ...prevData,
+          price: avgprice.toFixed(2),
+        }));
+      }
+    }
+
     return newErrors;
   };
 
@@ -67,8 +137,6 @@ const BuySellForm = () => {
       return;
     }
     setIsSubmitting(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log(formData);
     setSubmitMessage({
       type: "success",
@@ -79,7 +147,7 @@ const BuySellForm = () => {
     if (selected === "BUY") {
       storeFunction.addStock(formData);
     } else {
-      // Add logic for selling stock if needed
+      //  logic for selling stock if needed
     }
 
     const date = new Date();
@@ -90,6 +158,7 @@ const BuySellForm = () => {
       symbol: formData.symbol,
       quantity: formData.quantity,
       price: formData.price,
+      charges: formData.tax + formData.brokerage,
     });
 
     setFormData({
@@ -315,6 +384,7 @@ const BuySellForm = () => {
           }}
         >
           <span>Tax: ₹{calculatedCharges.tax}</span>
+          {avgPrice && <span>Avg Price: {avgPrice}</span>}
           <span>Brokerage: ₹{calculatedCharges.brokerage}</span>
         </div>
 

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  IndianRupee,
-  ArrowUpRight,
-  Percent,
-  PieChart,
-  Layers,
-} from "lucide-react";
+import { IndianRupee, ArrowUpRight, Percent, PieChart } from "lucide-react";
 
 const PortfolioSummary = () => (
   <div className="grid grid-cols-auto-fit-200 gap-4 p-2">
