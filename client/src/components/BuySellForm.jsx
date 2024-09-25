@@ -3,12 +3,12 @@ import Store from "../context/Store/Store";
 
 const BuySellForm = () => {
   const [selected, setSelected] = useState("BUY");
-  const { state, addStock } = useContext(Store);
+  const { state, storeFunction } = useContext(Store);
 
   const [formData, setFormData] = useState({
     symbol: "",
-    quantity: "",
-    price: "",
+    quantity: 0,
+    price: 0,
     sector: "",
     tax: 0,
     brokerage: 0,
@@ -54,7 +54,8 @@ const BuySellForm = () => {
       newErrors.price = "Valid price is required";
     if (!formData.quantity || Number(formData.quantity) <= 0)
       newErrors.quantity = "Valid quantity is required";
-    if (!formData.sector) newErrors.sector = "Please select a sector";
+    if (selected === "BUY" && !formData.sector)
+      newErrors.sector = "Please select a sector";
     return newErrors;
   };
 
@@ -74,7 +75,23 @@ const BuySellForm = () => {
       text: `${selected} order placed successfully!`,
     });
     setIsSubmitting(false);
-    addStock(formData);
+
+    if (selected === "BUY") {
+      storeFunction.addStock(formData);
+    } else {
+      // Add logic for selling stock if needed
+    }
+
+    const date = new Date();
+    const formattedDate = date.toISOString().slice(0, 10);
+    storeFunction.addTransaction({
+      date: formattedDate,
+      type: selected,
+      symbol: formData.symbol,
+      quantity: formData.quantity,
+      price: formData.price,
+    });
+
     setFormData({
       symbol: "",
       quantity: "",
@@ -237,21 +254,20 @@ const BuySellForm = () => {
             </p>
           )}
         </div>
+        {selected === "BUY" && (
+          <div>
+            <label
+              htmlFor="sector"
+              style={{
+                display: "block",
+                fontWeight: "bold",
+                fontSize: "0.875rem",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Select Sector
+            </label>
 
-        <div>
-          <label
-            htmlFor="sector"
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              fontSize: "0.875rem",
-              marginBottom: "0.25rem",
-            }}
-          >
-            Select Sector
-          </label>
-
-          {selected === "BUY" && (
             <select
               id="sector"
               name="sector"
@@ -277,20 +293,20 @@ const BuySellForm = () => {
               <option value="Real Estate">Real Estate</option>
               <option value="Other">Other</option>
             </select>
-          )}
-          {errors.sector && (
-            <p
-              style={{
-                color: "red",
-                fontSize: "0.75rem",
-                marginTop: "0.25rem",
-              }}
-            >
-              {errors.sector}
-            </p>
-          )}
-        </div>
 
+            {errors.sector && (
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "0.75rem",
+                  marginTop: "0.25rem",
+                }}
+              >
+                {errors.sector}
+              </p>
+            )}
+          </div>
+        )}
         <div
           style={{
             display: "flex",

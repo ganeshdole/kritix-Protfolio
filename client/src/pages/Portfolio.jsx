@@ -1,7 +1,7 @@
 import BuySellForm from "../components/BuySellForm";
 import CurrentHoldings from "../components/CurrentHoldings";
 import PortfolioSummary from "../components/PortfolioSummary";
-import TransactionHistory from "../components/TransitionHistory";
+import TransactionHistory from "../components/TansactionHistory";
 
 export default function Portfolio() {
   return (
