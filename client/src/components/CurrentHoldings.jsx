@@ -8,7 +8,7 @@ const CurrentHoldings = () => {
 
   const tableRow = useMemo(() => {
     return stocks?.map((stock, index) => (
-      <tr className="border-b" key={stock.symbol || index}>
+      <tr className="border-b" key={index}>
         <td className="px-6 py-4">{stock.symbol}</td>
         <td className="px-6 py-4">{stock.quantity}</td>
         <td className="px-6 py-4">₹{stock.price}</td>

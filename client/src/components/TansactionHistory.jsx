@@ -10,7 +10,7 @@ const TransactionHistory = () => {
     return transactions.map((transaction, index) => {
       const isPositive = transaction.type.toLowerCase() === "buy";
       return (
-        <tr className="border-b" key={transaction.id || index}>
+        <tr className="border-b" key={index}>
           <td className="px-6 py-4">{transaction.date}</td>
           <td
             className={`px-6 py-4 ${

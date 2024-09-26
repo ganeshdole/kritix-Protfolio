@@ -24,6 +24,7 @@ const BuySellForm = () => {
   const [avgPrice, setAvgPrice] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
+  const [isExisting, setIsExisting] = useState(false);
 
   const calculateCharges = useCallback((quantity, price) => {
     const totalPrice = Number(quantity) * Number(price);
@@ -46,6 +47,24 @@ const BuySellForm = () => {
       const charges = calculateCharges(formData.quantity, formData.price);
       formData.tax = charges.tax;
       setCalculatedCharges(charges);
+    }
+    if (stocks.length > 0 && selected === "BUY") {
+      const existingStock = stocks.find(
+        (stock) => stock.symbol === formData.symbol
+      );
+
+      if (existingStock) {
+        const totalOldValue =
+          Number(existingStock.quantity) * Number(existingStock.price);
+        const totalNewValue =
+          Number(formData.quantity) * Number(formData.price);
+        const totalQuantity =
+          Number(existingStock.quantity) + Number(formData.quantity);
+
+        const avgprice = (totalOldValue + totalNewValue) / totalQuantity;
+        setAvgPrice(avgprice.toFixed(2));
+        setIsExisting(true);
+      }
     }
   }, [formData.quantity, formData.price, calculateCharges]);
 
@@ -73,6 +92,9 @@ const BuySellForm = () => {
       } else if (price > 1000000) {
         // Assuming a reasonable upper limit
         newErrors.price = "Price seems unusually high. Please verify";
+      }
+      if (isExisting) {
+        setFormData((prev) => ({ ...prev, price: avgPrice }));
       }
     }
 
@@ -102,30 +124,6 @@ const BuySellForm = () => {
         newErrors.quantity = `You can't sell more than your current holding of ${currentHolding}`;
       }
     }
-
-    if (stocks.length > 0 && selected === "BUY") {
-      const existingStock = stocks.find(
-        (stock) => stock.symbol === formData.symbol
-      );
-
-      if (existingStock) {
-        const totalOldValue =
-          Number(existingStock.quantity) * Number(existingStock.price);
-        const totalNewValue =
-          Number(formData.quantity) * Number(formData.price);
-        const totalQuantity =
-          Number(existingStock.quantity) + Number(formData.quantity);
-
-        const avgprice = (totalOldValue + totalNewValue) / totalQuantity;
-        setAvgPrice(avgprice.toFixed(2));
-        // Update formData with the new average price
-        setFormData((prevData) => ({
-          ...prevData,
-          price: avgprice.toFixed(2),
-        }));
-      }
-    }
-
     return newErrors;
   };
 
@@ -137,7 +135,6 @@ const BuySellForm = () => {
       return;
     }
     setIsSubmitting(true);
-    console.log(formData);
     setSubmitMessage({
       type: "success",
       text: `${selected} order placed successfully!`,
@@ -145,7 +142,13 @@ const BuySellForm = () => {
     setIsSubmitting(false);
 
     if (selected === "BUY") {
-      storeFunction.addStock(formData);
+      storeFunction.addStock({
+        ...formData,
+        avgPrice: isExisting ? avgPrice : formData.price,
+      });
+      setIsExisting(false);
+
+      console.log(formData);
     } else {
       //  logic for selling stock if needed
     }
@@ -384,7 +387,7 @@ const BuySellForm = () => {
           }}
         >
           <span>Tax: ₹{calculatedCharges.tax}</span>
-          {avgPrice && <span>Avg Price: {avgPrice}</span>}
+          {isExisting && <span>Avg Price: {avgPrice}</span>}
           <span>Brokerage: ₹{calculatedCharges.brokerage}</span>
         </div>
 

@@ -10,7 +10,26 @@ const ContextProvider = ({ children }) => {
   };
 
   const addStock = (newStock) => {
-    setStocks((prevStocks) => [...prevStocks, newStock]);
+    console.log(newStock);
+    const existingStock = stocks.find(
+      (stock) => stock.symbol === newStock.symbol
+    );
+
+    if (existingStock) {
+      const updatedStocks = stocks.map((stock) =>
+        stock.symbol === newStock.symbol
+          ? {
+              ...stock,
+              quantity: Number(stock.quantity) + Number(newStock.quantity),
+              price: newStock.avgPrice,
+            }
+          : stock
+      );
+      setStocks(updatedStocks);
+    } else {
+      // If stock doesn't exist, add new stock
+      setStocks([...stocks, newStock]);
+    }
   };
 
   const addTransaction = (newTransaction) => {
