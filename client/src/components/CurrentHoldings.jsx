@@ -11,11 +11,9 @@ const CurrentHoldings = () => {
       <tr className="border-b" key={index}>
         <td className="px-6 py-4">{stock.symbol}</td>
         <td className="px-6 py-4">{stock.quantity}</td>
-        <td className="px-6 py-4">₹{stock.price}</td>
+        <td className="px-6 py-4">₹{stock.avgPrice}</td>
         <td className="px-6 py-4">{"coming soon"}</td>
-        <td className="px-6 py-4">
-          ₹{(stock.price * stock.quantity).toFixed(2)}
-        </td>
+        <td className="px-6 py-4">₹{stock.totalvalue.toFixed(2)}</td>
         <td className="px-6 py-4">{"coming soon"}</td>
         <td className="px-6 py-4">{stock.sector}</td>
         <td className="px-6 py-4">

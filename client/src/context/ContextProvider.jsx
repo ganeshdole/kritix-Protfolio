@@ -21,14 +21,23 @@ const ContextProvider = ({ children }) => {
           ? {
               ...stock,
               quantity: Number(stock.quantity) + Number(newStock.quantity),
-              price: newStock.avgPrice,
+              avgPrice: newStock.avgPrice,
+              totalvalue:
+                Number(stock.price) * Number(stock.quantity) +
+                Number(newStock.price) * Number(newStock.quantity),
             }
           : stock
       );
       setStocks(updatedStocks);
     } else {
       // If stock doesn't exist, add new stock
-      setStocks([...stocks, newStock]);
+      setStocks([
+        ...stocks,
+        {
+          ...newStock,
+          totalvalue: Number(newStock.price) * Number(newStock.quantity),
+        },
+      ]);
     }
   };
 
